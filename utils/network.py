@@ -1,5 +1,6 @@
 ''' ssl utils '''
 import requests
+from .encryption import hmac_md5, get_host_ip, get_token, get_info, get_timestamp, get_chksum
 
 
 def disable_requests_warnings():
@@ -25,10 +26,22 @@ def is_network_ok(url: str = "https://www.baidu.com/"):
 
 def send_encu_login_post(username: str, password: str):
     ''' 发送校园网登录请求 '''
-    requests.post("https://login.ecnu.edu.cn/srun_portal_pc.php?ac_id=1&", data={
-        'username': username,
-        'password': password,
-        'action': 'login',
-        'ac_id': '1',
-        'is_second': '0'
-    }, headers={'Content-Type': 'application/x-www-form-urlencoded'}, verify=False)
+    timestamp = get_timestamp()
+
+    ip = get_host_ip()
+
+    token = get_token(username, ip, timestamp)
+
+    password_hmac = hmac_md5(password, token)
+    password_last = "{MD5}" + password_hmac
+
+    info = get_info(username, password, ip, token)
+
+    chksum = get_chksum(token, username, password_hmac, ip, info)
+
+    url = f"callback=1&action=login&username={username}&password={password_last}&double_stack=0&chksum={chksum}&info={info}&ac_id=1&ip={ip}&n=200&type=1&_={timestamp}"
+    url = url.replace("{", "%7B")
+    url = url.replace("}", "%7D")
+    url = url.replace("+", "%2B")
+    url = url.replace("/", "%2F")
+    requests.get("https://login.ecnu.edu.cn/cgi-bin/srun_portal?" + url)
