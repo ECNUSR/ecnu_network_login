@@ -35,6 +35,7 @@ def hmac_md5(password: str, token: str) -> str:
 def get_info(username: str, password: str, ip: str, token: str) -> str:
     context = js2py.EvalJs()
     context.execute('''
+var _PADCHAR = '=';
 function encode(str, key) {
     if (str === '') return '';
     var v = s(str, true);
