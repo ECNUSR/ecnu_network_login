@@ -2,6 +2,13 @@
 
 华师大上网需要进行校园网验证，验证一般是通过网页操作。然而在学校机房放置的linux服务器，不太方便打开网页进行验证，所以开发一个通过python的自动验证程序。
 
+# Preparation
+
+1. Install dependencies:
+```
+pip install -r requirements.txt
+```
+
 # Usage
 
 > usage: login.py [-h] --username USERNAME [--interval INTERVAL] [--lark LARK [LARK ...]]
