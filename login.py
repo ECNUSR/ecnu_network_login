@@ -2,7 +2,6 @@
 import time
 from getpass import getpass
 import argparse
-from utils import lark
 from utils.network import disable_requests_warnings, is_network_ok, send_encu_login_post
 from utils.misc import info_with_time
 
@@ -12,8 +11,6 @@ def parse_options():
     parser = argparse.ArgumentParser()
     parser.add_argument('--username', type=str, required=True, help='username, 也就是学号')
     parser.add_argument('--interval', type=int, default=60, help='检查网络是否正常的间隔')
-    parser.add_argument('--lark', nargs='+', type=str, default=None,
-                        help='如果登录失败，通过飞书发送给接收者（搭配飞书机器人食用）')
     args = parser.parse_args()
     args.password = getpass("password: ")
     return args
@@ -42,8 +39,6 @@ def main():
         if not is_network_ok() or first:
             status, info = login(args.username, args.password)
             print(info_with_time(info))
-            if not status and args.lark is not None:
-                lark.try_send(info_with_time(info), *args.lark)
         first = False
         time.sleep(args.interval)
 
