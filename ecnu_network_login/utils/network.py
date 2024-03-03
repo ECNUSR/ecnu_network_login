@@ -1,13 +1,24 @@
-"""ssl utils."""
+import socket
+from typing import Optional
+
 import requests
 
-from .encryption import (get_chksum, get_host_ip, get_info, get_timestamp,
-                         get_token, hmac_md5)
+from .encryption import get_chksum, get_info, get_token, hmac_md5
+from .misc import get_timestamp
+
+
+def get_host_ip() -> str:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+    return ip
 
 
 def disable_requests_warnings():
     """绕过高版本SSL强制验证."""
-    # pylint: disable=no-member
     requests.packages.urllib3.disable_warnings()
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
     try:
@@ -26,8 +37,11 @@ def is_network_ok(url: str = 'https://www.baidu.com/'):
         return False
 
 
-def get_encu_login_post(username: str, password: str, ip: str):
+def get_encu_login_post(username: str,
+                        password: str,
+                        ip: Optional[str] = None) -> str:
     """发送校园网登录请求."""
+    ip = ip or get_host_ip()
     timestamp = get_timestamp()
 
     token = get_token(username, ip, timestamp)
@@ -47,7 +61,10 @@ def get_encu_login_post(username: str, password: str, ip: str):
     return 'https://login.ecnu.edu.cn/cgi-bin/srun_portal?' + url
 
 
-def send_encu_login_post(username: str, password: str):
+def send_encu_login_post(username: str,
+                         password: str,
+                         ip: Optional[str] = None) -> bool:
     """发送校园网登录请求."""
-    url = get_encu_login_post(username, password, get_host_ip())
+    url = get_encu_login_post(username, password, ip or get_host_ip())
     requests.get(url)
+    return is_network_ok()

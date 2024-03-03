@@ -7,28 +7,23 @@
 1. Install dependencies:
 
 ```
-pip install -r requirements.txt
+pip install ecnu-network-login==1.0
 ```
 
 # Usage
 
-> usage: login.py [-h] --username USERNAME [--interval INTERVAL] [--lark LARK [LARK ...]]
-> optional arguments:
->
-> -h, --help            show this help message and exit
->
-> --username USERNAME   username, 也就是学号
->
-> --interval INTERVAL   检查网络是否正常的间隔
+```bash
+# 帮助文档，ecnu_net_login和ecnu_network_login均能识别
+ecnu_net_login --help
+ecnu_network_login --help
 
-为了保护你的密码安全，使用getpass库输入密码，密码也就是你idc账号的密码。
+# 登录（循环登录）
+ecnu_net_login -u {{学号}}
+ecnu_net_login -u {{学号}} -m LOOP
 
-# 第一次使用
+# 登录（仅一次）
+ecnu_net_login -u {{学号}} -m ONCE
 
-服务器如果完全没有网，无法联网，可以通过在自己机器上（连上校园网）执行
-
+# 远程获取登录URL（如果远程服务器没网，没法安装此包，可以在有校园网环境的机器上远程支持获取URL，然后在服务器上wget该URL）
+ecnu_net_login -u {{学号}} --ip {{服务器IP}} -m PRINT
 ```
-python get_login_url.py --username {{学号}} --ip {{服务器ip}}
-```
-
-便可以得到登录网址，然后在**几分钟内**服务器上请求该网址就行。

@@ -1,40 +1,3 @@
-import js2py
-import hmac
-import hashlib
-import requests
-import time
-import json
-import socket
-
-
-def get_host_ip() -> str:
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-    finally:
-        s.close()
-    return ip
-
-
-def get_timestamp() -> int:
-    return int(round(time.time() * 1000))
-
-
-def get_token(username: str, ip: str, timestamp: int) -> str:
-    content = json.loads(requests.get(f"https://login.ecnu.edu.cn/cgi-bin/get_challenge?callback=x&username={username}&ip={ip}&_={timestamp}").content[2:-1]) 
-    return content['challenge']
-
-
-def hmac_md5(password: str, token: str) -> str:
-    mac = hmac.new(token.encode(), password.encode(), hashlib.md5) 
-    mac.digest()
-    return mac.hexdigest()
-
-
-def get_info(username: str, password: str, ip: str, token: str) -> str:
-    context = js2py.EvalJs()
-    context.execute('''
 var _PADCHAR = '=';
 function encode(str, key) {
     if (str === '') return '';
@@ -138,12 +101,3 @@ function base64(s) {
     }
     return x.join("")
 }
-    ''')
-    result = context.encode("{\"username\":\"" + username + "\",\"password\":\"" + password + "\",\"ip\":\"" + ip + "\",\"acid\":\"1\",\"enc_ver\":\"srun_bx1\"}", token)
-    result = "{SRBX1}" + context.base64(result)
-    return result
-
-
-def get_chksum(token: str, username: str, password_hmd5: str, ip: str, info: str) -> str:
-    all = token + username + token + password_hmd5 + token + "1" + token + ip + token + "200" + token + "1" + token + info
-    return hashlib.sha1(all.encode()).hexdigest()
