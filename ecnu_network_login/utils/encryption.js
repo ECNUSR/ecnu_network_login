@@ -1,4 +1,3 @@
-var _PADCHAR = '=';
 function encode(str, key) {
     if (str === '') return '';
     var v = s(str, true);
@@ -73,6 +72,7 @@ function _getbyte(s, i) {
     return x
 }
 function base64(s) {
+    var _PADCHAR = '=';
     var _ALPHA = "LVoJPiCN2R8G90yg+hmFHuacZ1OWMnrsSTXkYpUq/3dlbfKwv6xztjI7DeBE45QA";
     if (arguments.length !== 1) {
         throw "SyntaxError: exactly one argument required"
