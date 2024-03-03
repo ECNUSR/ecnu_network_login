@@ -7,7 +7,7 @@
 1. Install dependencies:
 
 ```
-pip install ecnu-network-login==1.0
+pip install ecnu-network-login==1.1
 ```
 
 # Usage
